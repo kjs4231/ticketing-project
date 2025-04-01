@@ -21,7 +21,7 @@ class ConcertResponseTest {
         assertEquals("설명", response.getDescription());
         assertEquals(now, response.getConcertDate());
         assertEquals(100, response.getCapacity());
-        assertNotNull(response.getCreatedAt());
-        assertNotNull(response.getUpdatedAt());
+        assertEquals(now, response.getCreatedAt());
+        assertEquals(now, response.getUpdatedAt());
     }
 }
