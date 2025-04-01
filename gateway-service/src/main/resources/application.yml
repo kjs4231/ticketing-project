@@ -8,14 +8,14 @@ spring:
     gateway:
       routes:
         - id: user-service
-          uri: lb://USER-SERVICE
+          uri: http://localhost:8081
           predicates:
             - Path=/user-service/**
           filters:
             - RewritePath=/user-service/(?<segment>.*), /$\{segment}
 
         - id: concert-service
-          uri: lb://CONCERT-SERVICE
+          uri:  http://localhost:8082
           predicates:
             - Path=/concert-service/**
           filters:
@@ -23,6 +23,8 @@ spring:
 
 jwt:
   secret: yourSecretKeyHereMustBeAtLeast32BytesLong
+  expire-length: 36000000
+
 
 eureka:
   client:

@@ -1,48 +1,36 @@
 package com.ticket.concertservice.domain;
 
 import com.ticket.concertservice.dto.ConcertCreateRequest;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import lombok.Builder;
-import lombok.Getter;
+import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
 public class Concert {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long concertId;
-    private Long userId;
+    private Long id;
+
+    @Column(nullable = false)
     private String title;
+
+    @Column(nullable = false)
     private String description;
-    private LocalDateTime concertDate;
-    private int capacity;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 
-    protected Concert() {}
+    @Column(nullable = false)
+    private LocalDateTime dateTime;
 
-    @Builder
-    public Concert(Long concertId, Long userId, String title, String description,
-                   LocalDateTime concertDate, int capacity) {
-        this.concertId = concertId;  // concertId 추가
-        this.userId = userId;
-        this.title = title;
-        this.description = description;
-        this.concertDate = concertDate;
-        this.capacity = capacity;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = this.createdAt;
-    }
+    @Column(nullable = false)
+    private String userEmail;
 
     public void update(ConcertCreateRequest request) {
         this.title = request.getTitle();
         this.description = request.getDescription();
-        this.concertDate = request.getConcertDate();
-        this.capacity = request.getCapacity();
+        this.dateTime = request.getDateTime();
     }
 }
