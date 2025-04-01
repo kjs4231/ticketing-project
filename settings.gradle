@@ -1,0 +1,6 @@
+rootProject.name = 'ticket-project'
+
+include 'common'
+include 'user-service'
+include 'concert-service'
+include 'eureka-server'
