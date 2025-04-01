@@ -38,7 +38,22 @@ class ConcertControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(concertController).build();
     }
 
+    @Test
+    void testCreateConcert() throws Exception {
+        ConcertCreateRequest request = new ConcertCreateRequest("제목", "설명", LocalDateTime.now().plusDays(7), 100);
+        Concert concert = new Concert(1L, 1L, "제목", "설명", LocalDateTime.now().plusDays(7), 100);
+        ConcertResponse response = new ConcertResponse(concert);
 
+        when(concertService.createConcert(any(Long.class), any(ConcertCreateRequest.class))).thenReturn(response);
+
+        mockMvc.perform(post("/concerts")
+                        .header("X-USER-ID", 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"제목\",\"description\":\"설명\",\"concertDate\":\"" + LocalDateTime.now().plusDays(7).toString() + "\",\"capacity\":100}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.concertId").value(1L))
+                .andExpect(jsonPath("$.title").value("제목"));
+    }
 
     @Test
     void testGetAllConcerts() throws Exception {
