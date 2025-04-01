@@ -4,7 +4,6 @@ import com.ticket.concertservice.domain.Concert;
 import com.ticket.concertservice.dto.ConcertCreateRequest;
 import com.ticket.concertservice.dto.ConcertResponse;
 import com.ticket.concertservice.service.ConcertService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,10 +13,13 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/concerts")
-@RequiredArgsConstructor
 public class ConcertController {
 
     private final ConcertService concertService;
+
+    public ConcertController(ConcertService concertService) {
+        this.concertService = concertService;
+    }
 
     @PostMapping
     public ResponseEntity<ConcertResponse> createConcert(
