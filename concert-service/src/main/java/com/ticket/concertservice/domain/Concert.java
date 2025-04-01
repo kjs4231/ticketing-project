@@ -1,5 +1,6 @@
 package com.ticket.concertservice.domain;
 
+import com.ticket.concertservice.dto.ConcertCreateRequest;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -38,10 +39,10 @@ public class Concert {
         this.updatedAt = this.createdAt;
     }
 
-//    public void update(ConcertCreateRequest request) {
-//        this.title = request.getTitle();
-//        this.description = request.getDescription();
-//        this.concertDate = request.getConcertDate();
-//        this.capacity = request.getCapacity();
-//    }
+    public void update(ConcertCreateRequest request) {
+        this.title = request.getTitle();
+        this.description = request.getDescription();
+        this.concertDate = request.getConcertDate();
+        this.capacity = request.getCapacity();
+    }
 }
