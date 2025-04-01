@@ -1,4 +1,3 @@
-
 package com.ticket.concertservice.controller;
 
 import com.ticket.concertservice.domain.Concert;
@@ -56,6 +55,16 @@ class ConcertControllerTest {
                 .andExpect(jsonPath("$.title").value("제목"));
     }
 
+    @Test
+    void testGetConcert() throws Exception {
+        Concert concert = new Concert(1L, 1L, "제목", "설명", LocalDateTime.now().plusDays(7), 100);
+        when(concertService.findConcertById(1L)).thenReturn(concert);
+
+        mockMvc.perform(get("/concerts/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.concertId").value(1L))
+                .andExpect(jsonPath("$.title").value("제목"));
+    }
 
     @Test
     void testGetAllConcerts() throws Exception {
@@ -64,5 +73,29 @@ class ConcertControllerTest {
         mockMvc.perform(get("/concerts"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray());
+    }
+
+    @Test
+    void testUpdateConcert() throws Exception {
+        ConcertCreateRequest request = new ConcertCreateRequest("수정된 제목", "수정된 설명", LocalDateTime.now().plusDays(14), 200);
+        Concert concert = new Concert(1L, 1L, "수정된 제목", "수정된 설명", LocalDateTime.now().plusDays(14), 200);
+        ConcertResponse response = new ConcertResponse(concert);
+
+        when(concertService.updateConcert(any(Long.class), any(Long.class), any(ConcertCreateRequest.class))).thenReturn(response);
+
+        mockMvc.perform(put("/concerts/1")
+                        .header("X-USER-ID", 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"수정된 제목\",\"description\":\"수정된 설명\",\"concertDate\":\"" + LocalDateTime.now().plusDays(14).toString() + "\",\"capacity\":200}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.concertId").value(1L))
+                .andExpect(jsonPath("$.title").value("수정된 제목"));
+    }
+
+    @Test
+    void testDeleteConcert() throws Exception {
+        mockMvc.perform(delete("/concerts/1")
+                        .header("X-USER-ID", 1L))
+                .andExpect(status().isNoContent());
     }
 }
