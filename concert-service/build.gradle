@@ -34,6 +34,8 @@ dependencies {
 
 	implementation 'org.springframework.security:spring-security-core'
 
+	testImplementation 'org.mockito:mockito-inline:4.0.0'
+
 
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
@@ -81,7 +83,7 @@ jacocoTestCoverageVerification {
 			limit {
 				counter = 'LINE'
 				value = 'COVEREDRATIO'
-				minimum = 0.070
+				minimum = 0.70
 			}
 			afterEvaluate {
 				classDirectories.setFrom(files(classDirectories.files.collect {
