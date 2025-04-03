@@ -1,4 +1,4 @@
-name: Concert Test Coverage
+name: Test Coverage
 
 on:
   pull_request:
@@ -30,6 +30,13 @@ jobs:
         run: chmod +x gradlew
         working-directory: .
 
+      # 디버깅 단계 추가
+      - name: Debug JaCoCo directories
+        run: |
+          mkdir -p concert-service/build/reports/jacoco/test/
+          mkdir -p reservation-service/build/reports/jacoco/test/
+        working-directory: .
+
       # Concert Service 테스트
       - name: Run Concert Service tests and generate coverage report
         env:
@@ -42,6 +49,16 @@ jobs:
           JAVA_HOME: ${{ steps.setup-java.outputs.java-home }}
         run: ./gradlew :concert-service:jacocoTestCoverageVerification
         working-directory: .
+
+      # 첫 번째 모듈 리포팅 - 이전 버전 사용
+      - name: Report Concert Test Coverage to PR
+        uses: madrapps/jacoco-report@v1.3
+        with:
+          title: 🎵 Concert Coverage
+          paths: ${{ github.workspace }}/concert-service/build/reports/jacoco/test/jacocoTestReport.xml
+          token: ${{ secrets.CICD_TOKEN }}
+          min-coverage-overall: 70
+          min-coverage-changed-files: 70
 
       # Reservation Service 테스트
       - name: Run Reservation Service tests and generate coverage report
@@ -56,19 +73,9 @@ jobs:
         run: ./gradlew :reservation-service:jacocoTestCoverageVerification
         working-directory: .
 
-      # Concert 커버리지 보고
-      - name: Report Concert Test Coverage to PR
-        uses: madrapps/jacoco-report@v1.6.1
-        with:
-          title: 🎵 Concert Coverage
-          paths: ${{ github.workspace }}/concert-service/build/reports/jacoco/test/jacocoTestReport.xml
-          token: ${{ secrets.CICD_TOKEN }}
-          min-coverage-overall: 70
-          min-coverage-changed-files: 70
-
-      # Reservation 커버리지 보고
+      # 두 번째 모듈 리포팅 - 이전 버전 사용
       - name: Report Reservation Test Coverage to PR
-        uses: madrapps/jacoco-report@v1.6.1
+        uses: madrapps/jacoco-report@v1.3
         with:
           title: 🎟️ Reservation Coverage
           paths: ${{ github.workspace }}/reservation-service/build/reports/jacoco/test/jacocoTestReport.xml
