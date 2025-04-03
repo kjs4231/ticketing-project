@@ -25,6 +25,7 @@ public class ConcertService {
                 .description(request.getDescription())
                 .dateTime(request.getDateTime())
                 .userEmail(userEmail)
+                .capacity(request.getCapacity())
                 .build();
 
         concert = concertRepository.save(concert);
