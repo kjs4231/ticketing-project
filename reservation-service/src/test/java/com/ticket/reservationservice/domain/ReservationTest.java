@@ -1,119 +1,53 @@
 package com.ticket.reservationservice.domain;
 
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.LocalDateTime;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
 
-@DataJpaTest
-class ReservationTest {
-
-    @Autowired
-    private TestEntityManager entityManager;
+public class ReservationTest {
 
     @Test
-    @DisplayName("예약 엔티티 생성 및 저장 테스트")
-    void createAndSaveReservation() {
-        // given
-        LocalDateTime now = LocalDateTime.now();
+    public void testConfirmReservation() {
+        // 초기 상태를 PENDING(예시)으로 설정한 후, 예약 확정을 진행합니다.
         Reservation reservation = new Reservation(
-                null,                   // reservationId
-                1L,                     // concertId
-                "test@example.com",     // userEmail
-                2L,                     // quantity
-                ReservationStatus.PENDING, // status
-                now,                    // reservedAt
-                null                    // cancelledAt
+                1L,                      // reservationId
+                100L,                    // concertId
+                "test@example.com",      // userEmail
+                2L,                      // quantity
+                ReservationStatus.PENDING, // 초기 상태로 PENDING을 사용한다고 가정합니다.
+                LocalDateTime.now(),     // reservedAt
+                null                     // cancelledAt
         );
 
-        // when
-        Reservation savedReservation = entityManager.persistAndFlush(reservation);
-
-        // then
-        assertThat(savedReservation.getReservationId()).isNotNull();
-        assertThat(savedReservation.getConcertId()).isEqualTo(1L);
-        assertThat(savedReservation.getUserEmail()).isEqualTo("test@example.com");
-        assertThat(savedReservation.getQuantity()).isEqualTo(2L);
-        assertThat(savedReservation.getStatus()).isEqualTo(ReservationStatus.PENDING);
-        assertThat(savedReservation.getReservedAt()).isEqualTo(now);
-        assertThat(savedReservation.getCancelledAt()).isNull();
+        // confirmReservation() 호출 후 상태가 CONFIRMED로 변경되어야 합니다.
+        reservation.confirmReservation();
+        assertEquals(ReservationStatus.CONFIRMED, reservation.getStatus(),
+                "예약 확정 후 상태가 CONFIRMED여야 합니다.");
     }
 
     @Test
-    @DisplayName("예약 상태 변경 테스트")
-    void updateReservationStatus() {
-        // given
-        LocalDateTime now = LocalDateTime.now();
+    public void testCancelReservation() {
+        // 예약 취소 테스트를 위해 초기 상태를 PENDING으로 설정합니다.
         Reservation reservation = new Reservation(
-                null,
-                1L,
-                "test@example.com",
-                2L,
-                ReservationStatus.PENDING,
-                now,
-                null
+                2L,                      // reservationId
+                101L,                    // concertId
+                "user@example.com",      // userEmail
+                3L,                      // quantity
+                ReservationStatus.PENDING, // 초기 상태로 PENDING을 사용한다고 가정합니다.
+                LocalDateTime.now(),     // reservedAt
+                null                     // cancelledAt
         );
 
-        Reservation savedReservation = entityManager.persistAndFlush(reservation);
+        // 취소 시간을 특정 LocalDateTime 값으로 지정합니다.
+        LocalDateTime cancellationTime = LocalDateTime.now().plusDays(1);
 
-        // when
-        Reservation updatedReservation = new Reservation(
-                savedReservation.getReservationId(),
-                savedReservation.getConcertId(),
-                savedReservation.getUserEmail(),
-                savedReservation.getQuantity(),
-                ReservationStatus.CONFIRMED,
-                savedReservation.getReservedAt(),
-                null
-        );
-        entityManager.merge(updatedReservation);
-        entityManager.flush();
-
-        // then
-        Reservation foundReservation = entityManager.find(Reservation.class, savedReservation.getReservationId());
-        assertThat(foundReservation.getStatus()).isEqualTo(ReservationStatus.CONFIRMED);
-    }
-
-    @Test
-    @DisplayName("예약 취소 테스트")
-    void cancelReservation() {
-        // given
-        LocalDateTime now = LocalDateTime.now();
-        Reservation reservation = new Reservation(
-                null,
-                1L,
-                "test@example.com",
-                2L,
-                ReservationStatus.CONFIRMED,
-                now,
-                null
-        );
-
-        Reservation savedReservation = entityManager.persistAndFlush(reservation);
-
-        // when
-        LocalDateTime cancelTime = LocalDateTime.now();
-        // 취소 상태로 변경한 새 객체 생성
-        Reservation cancelledReservation = new Reservation(
-                savedReservation.getReservationId(),
-                savedReservation.getConcertId(),
-                savedReservation.getUserEmail(),
-                savedReservation.getQuantity(),
-                ReservationStatus.CANCELLED,
-                savedReservation.getReservedAt(),
-                cancelTime
-        );
-        entityManager.merge(cancelledReservation);
-        entityManager.flush();
-
-        // then
-        Reservation foundReservation = entityManager.find(Reservation.class, savedReservation.getReservationId());
-        assertThat(foundReservation.getStatus()).isEqualTo(ReservationStatus.CANCELLED);
-        assertThat(foundReservation.getCancelledAt()).isNotNull();
+        // cancelReservation() 호출 후 상태와 취소 시간이 올바르게 설정되는지 확인합니다.
+        reservation.cancelReservation(cancellationTime);
+        assertEquals(ReservationStatus.CANCELLED, reservation.getStatus(),
+                "예약 취소 후 상태가 CANCELLED여야 합니다.");
+        assertEquals(cancellationTime, reservation.getCancelledAt(),
+                "취소 시각이 지정한 시간과 같아야 합니다.");
     }
 }
