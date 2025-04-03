@@ -1,4 +1,4 @@
-name: Test Coverage
+name: Concert Test Coverage
 
 on:
   pull_request:
@@ -36,13 +36,13 @@ jobs:
         run: ./gradlew :concert-service:clean test jacocoTestReport
         working-directory: .
 
-      - name: Verify test coverage
+      - name: Verify concert test coverage
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.java-home }}
         run: ./gradlew :concert-service:jacocoTestCoverageVerification
         working-directory: .
 
-      - name: Report test Coverage to PR
+      - name: Report concert test Coverage to PR
         uses: madrapps/jacoco-report@v1.6.1
         with:
           title: 📌 Test Coverage Report
