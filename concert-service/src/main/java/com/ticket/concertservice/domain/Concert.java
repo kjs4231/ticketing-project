@@ -1,12 +1,9 @@
 package com.ticket.concertservice.domain;
 
 import com.ticket.concertservice.dto.ConcertCreateRequest;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import lombok.Builder;
+import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Builder;
 
 import java.time.LocalDateTime;
 
@@ -15,34 +12,49 @@ import java.time.LocalDateTime;
 public class Concert {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long concertId;
-    private Long userId;
+    private Long id;
+
+    @Column(nullable = false)
     private String title;
+
+    @Column(nullable = false)
     private String description;
-    private LocalDateTime concertDate;
-    private int capacity;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+
+    @Column(nullable = false)
+    private LocalDateTime dateTime;
+
+    @Column(nullable = false)
+    private String userEmail;
+
+    @Column(nullable = false)
+    private Long capacity;
 
     protected Concert() {}
 
     @Builder
-    public Concert(Long concertId, Long userId, String title, String description,
-                   LocalDateTime concertDate, int capacity) {
-        this.concertId = concertId;  // concertId 추가
-        this.userId = userId;
+    public Concert(Long id, String title, String description, LocalDateTime dateTime, String userEmail, Long capacity) {
+        this.id = id;
         this.title = title;
         this.description = description;
-        this.concertDate = concertDate;
+        this.dateTime = dateTime;
+        this.userEmail = userEmail;
         this.capacity = capacity;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = this.createdAt;
+    }
+
+    public static Concert of(String title, String description, LocalDateTime dateTime, String userEmail, Long capacity) {
+        return Concert.builder()
+                .title(title)
+                .description(description)
+                .dateTime(dateTime)
+                .userEmail(userEmail)
+                .capacity(capacity)
+                .build();
     }
 
     public void update(ConcertCreateRequest request) {
         this.title = request.getTitle();
         this.description = request.getDescription();
-        this.concertDate = request.getConcertDate();
+        this.dateTime = request.getDateTime();
         this.capacity = request.getCapacity();
     }
 }
