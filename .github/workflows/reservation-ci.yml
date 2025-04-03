@@ -36,13 +36,13 @@ jobs:
         run: ./gradlew :reservation-service:clean test jacocoTestReport
         working-directory: .
 
-      - name: Verify reservation test coverage
+      - name: Verify test coverage
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.java-home }}
         run: ./gradlew :reservation-service:jacocoTestCoverageVerification
         working-directory: .
 
-      - name: Report reservation test Coverage to PR
+      - name: Report test Coverage to PR
         uses: madrapps/jacoco-report@v1.6.1
         with:
           title: 📌 Test Coverage Report
