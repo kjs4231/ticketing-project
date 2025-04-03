@@ -41,8 +41,10 @@ dependencies {
 
 	implementation 'com.mysql:mysql-connector-j'
 
-//	implementation 'org.springframework.security:spring-security-core'
-//	implementation 'org.springframework.boot:spring-boot-starter-security'
+	testImplementation 'org.mockito:mockito-core:5.10.0'
+	testImplementation 'org.mockito:mockito-junit-jupiter:5.10.0'
+	testImplementation 'net.bytebuddy:byte-buddy:1.14.12'
+
 
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 
