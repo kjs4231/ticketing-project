@@ -4,6 +4,7 @@ import com.ticket.concertservice.domain.Concert;
 import com.ticket.concertservice.dto.ConcertCreateRequest;
 import com.ticket.concertservice.dto.ConcertResponse;
 import com.ticket.concertservice.repository.ConcertRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,6 +13,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -153,5 +156,113 @@ class ConcertServiceTest {
 
         // when & then
         assertDoesNotThrow(() -> concertService.deleteConcert(concertId, userEmail));
+    }
+
+    @Test
+    @DisplayName("ID로 콘서트 찾기가 성공적으로 이루어져야 한다")
+    void findConcertById_Success() {
+        // given
+        Long concertId = 1L;
+        Concert concert = Concert.builder()
+                .id(concertId)
+                .userEmail("test@test.com")
+                .title("콘서트 제목")
+                .description("콘서트 설명")
+                .dateTime(LocalDateTime.now().plusDays(7))
+                .capacity(100L)
+                .build();
+
+        given(concertRepository.findById(concertId)).willReturn(Optional.of(concert));
+
+        // when
+        Concert foundConcert = concertService.findConcertById(concertId);
+
+        // then
+        assertNotNull(foundConcert);
+        assertEquals(concert.getId(), foundConcert.getId());
+        assertEquals(concert.getTitle(), foundConcert.getTitle());
+    }
+
+    @Test
+    @DisplayName("모든 콘서트 찾기가 성공적으로 이루어져야 한다")
+    void findAllConcerts_Success() {
+        // given
+        List<Concert> concerts = Arrays.asList(
+                Concert.builder()
+                        .id(1L)
+                        .userEmail("test1@test.com")
+                        .title("콘서트 1")
+                        .description("설명 1")
+                        .dateTime(LocalDateTime.now().plusDays(7))
+                        .capacity(100L)
+                        .build(),
+                Concert.builder()
+                        .id(2L)
+                        .userEmail("test2@test.com")
+                        .title("콘서트 2")
+                        .description("설명 2")
+                        .dateTime(LocalDateTime.now().plusDays(14))
+                        .capacity(200L)
+                        .build()
+        );
+
+        given(concertRepository.findAll()).willReturn(concerts);
+
+        // when
+        List<Concert> foundConcerts = concertService.findAllConcerts();
+
+        // then
+        assertNotNull(foundConcerts);
+        assertEquals(2, foundConcerts.size());
+        assertEquals(concerts.get(0).getTitle(), foundConcerts.get(0).getTitle());
+        assertEquals(concerts.get(1).getTitle(), foundConcerts.get(1).getTitle());
+    }
+
+    @Test
+    @DisplayName("사용자 이메일로 콘서트 찾기가 성공적으로 이루어져야 한다")
+    void findConcertsByUserEmail_Success() {
+        // given
+        String userEmail = "test@test.com";
+        List<Concert> concerts = Arrays.asList(
+                Concert.builder()
+                        .id(1L)
+                        .userEmail(userEmail)
+                        .title("콘서트 1")
+                        .description("설명 1")
+                        .dateTime(LocalDateTime.now().plusDays(7))
+                        .capacity(100L)
+                        .build(),
+                Concert.builder()
+                        .id(2L)
+                        .userEmail(userEmail)
+                        .title("콘서트 2")
+                        .description("설명 2")
+                        .dateTime(LocalDateTime.now().plusDays(14))
+                        .capacity(200L)
+                        .build()
+        );
+
+        given(concertRepository.findByUserEmailOrderByDateTimeDesc(userEmail)).willReturn(concerts);
+
+        // when
+        List<Concert> foundConcerts = concertService.findConcertsByUserEmail(userEmail);
+
+        // then
+        assertNotNull(foundConcerts);
+        assertEquals(2, foundConcerts.size());
+        assertTrue(foundConcerts.stream().allMatch(c -> c.getUserEmail().equals(userEmail)));
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 콘서트 ID로 찾을 때 예외가 발생해야 한다")
+    void findConcertById_NotFound_ThrowsException() {
+        // given
+        Long concertId = 1L;
+        given(concertRepository.findById(concertId)).willReturn(Optional.empty());
+
+        // when & then
+        assertThrows(EntityNotFoundException.class, () ->
+                concertService.findConcertById(concertId)
+        );
     }
 }
