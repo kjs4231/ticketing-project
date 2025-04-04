@@ -46,7 +46,7 @@ class ConcertControllerTest {
 
         LocalDateTime concertDate = LocalDateTime.now().plusDays(7);
         concert = Concert.builder()
-                .id(1L)
+                .concertId(1L)
                 .title("콘서트 제목")
                 .description("콘서트 설명")
                 .dateTime(concertDate)
@@ -104,7 +104,7 @@ class ConcertControllerTest {
                 "수정된 제목", "수정된 설명", LocalDateTime.now().plusDays(14), 200L);
 
         Concert updatedConcert = Concert.builder()
-                .id(1L)
+                .concertId(1L)
                 .title("수정된 제목")
                 .description("수정된 설명")
                 .dateTime(LocalDateTime.now().plusDays(14))

@@ -21,7 +21,7 @@ class ConcertTest {
 
         // when
         Concert concert = Concert.builder()
-                .id(id)
+                .concertId(id)
                 .title(title)
                 .description(description)
                 .dateTime(dateTime)
@@ -43,7 +43,7 @@ class ConcertTest {
     void testConcertUpdate() {
         // given
         Concert concert = Concert.builder()
-                .id(1L)
+                .concertId(1L)
                 .title("기존 제목")
                 .description("기존 설명")
                 .dateTime(LocalDateTime.now().plusDays(7))
