@@ -26,7 +26,7 @@ class ConcertResponseTest {
 
         // then
         assertNotNull(response);
-        assertEquals(concert.getId(), response.getId());
+        assertEquals(concert.getConcertId(), response.getConcertId());
         assertEquals(concert.getTitle(), response.getTitle());
         assertEquals(concert.getDescription(), response.getDescription());
         assertEquals(concert.getDateTime(), response.getDateTime());

@@ -52,7 +52,7 @@ class ConcertServiceTest {
                 .build();
 
         Concert savedConcert = Concert.builder()
-                .id(1L)
+                .concertId(1L)
                 .userEmail(userEmail)
                 .title(request.getTitle())
                 .description(request.getDescription())
@@ -67,7 +67,7 @@ class ConcertServiceTest {
 
         // then
         assertNotNull(response);
-        assertEquals(savedConcert.getId(), response.getId());
+        assertEquals(savedConcert.getConcertId(), response.getConcertId());
         assertEquals(request.getTitle(), response.getTitle());
     }
 
@@ -85,7 +85,7 @@ class ConcertServiceTest {
         );
 
         Concert existingConcert = Concert.builder()
-                .id(concertId)
+                .concertId(concertId)
                 .userEmail(userEmail)
                 .title("원래 제목")
                 .description("원래 설명")
@@ -112,7 +112,7 @@ class ConcertServiceTest {
         String differentUserEmail = "other@test.com";
 
         Concert existingConcert = Concert.builder()
-                .id(concertId)
+                .concertId(concertId)
                 .userEmail(creatorEmail)
                 .title("원래 제목")
                 .description("원래 설명")
@@ -143,7 +143,7 @@ class ConcertServiceTest {
         String userEmail = "test@test.com";
 
         Concert existingConcert = Concert.builder()
-                .id(concertId)
+                .concertId(concertId)
                 .userEmail(userEmail)
                 .title("테스트 콘서트")
                 .description("테스트 설명")
@@ -164,7 +164,7 @@ class ConcertServiceTest {
         // given
         Long concertId = 1L;
         Concert concert = Concert.builder()
-                .id(concertId)
+                .concertId(concertId)
                 .userEmail("test@test.com")
                 .title("콘서트 제목")
                 .description("콘서트 설명")
@@ -179,7 +179,7 @@ class ConcertServiceTest {
 
         // then
         assertNotNull(foundConcert);
-        assertEquals(concert.getId(), foundConcert.getId());
+        assertEquals(concert.getConcertId(), foundConcert.getConcertId());
         assertEquals(concert.getTitle(), foundConcert.getTitle());
     }
 
@@ -189,7 +189,7 @@ class ConcertServiceTest {
         // given
         List<Concert> concerts = Arrays.asList(
                 Concert.builder()
-                        .id(1L)
+                        .concertId(1L)
                         .userEmail("test1@test.com")
                         .title("콘서트 1")
                         .description("설명 1")
@@ -197,7 +197,7 @@ class ConcertServiceTest {
                         .capacity(100L)
                         .build(),
                 Concert.builder()
-                        .id(2L)
+                        .concertId(2L)
                         .userEmail("test2@test.com")
                         .title("콘서트 2")
                         .description("설명 2")
@@ -225,7 +225,7 @@ class ConcertServiceTest {
         String userEmail = "test@test.com";
         List<Concert> concerts = Arrays.asList(
                 Concert.builder()
-                        .id(1L)
+                        .concertId(1L)
                         .userEmail(userEmail)
                         .title("콘서트 1")
                         .description("설명 1")
@@ -233,7 +233,7 @@ class ConcertServiceTest {
                         .capacity(100L)
                         .build(),
                 Concert.builder()
-                        .id(2L)
+                        .concertId(2L)
                         .userEmail(userEmail)
                         .title("콘서트 2")
                         .description("설명 2")
@@ -265,4 +265,123 @@ class ConcertServiceTest {
                 concertService.findConcertById(concertId)
         );
     }
+
+    @Test
+    @DisplayName("다른 사용자의 콘서트 삭제 시 예외가 발생해야 한다")
+    void deleteConcert_DifferentUser_ThrowsException() {
+        // given
+        Long concertId = 1L;
+        String creatorEmail = "creator@test.com";
+        String differentUserEmail = "other@test.com";
+
+        Concert existingConcert = Concert.builder()
+                .concertId(concertId)
+                .userEmail(creatorEmail)
+                .title("테스트 콘서트")
+                .description("테스트 설명")
+                .dateTime(LocalDateTime.now().plusDays(7))
+                .capacity(100L)
+                .build();
+
+        given(concertRepository.findById(concertId)).willReturn(Optional.of(existingConcert));
+
+        // when & then
+        assertThrows(IllegalArgumentException.class, () ->
+                concertService.deleteConcert(concertId, differentUserEmail)
+        );
+    }
+
+    @Test
+    @DisplayName("사용자 이메일로 콘서트 찾기 - 결과가 없는 경우")
+    void findConcertsByUserEmail_Empty() {
+        // given
+        String userEmail = "nouser@test.com";
+        given(concertRepository.findByUserEmailOrderByDateTimeDesc(userEmail))
+                .willReturn(List.of());
+
+        // when
+        List<Concert> foundConcerts = concertService.findConcertsByUserEmail(userEmail);
+
+        // then
+        assertNotNull(foundConcerts);
+        assertTrue(foundConcerts.isEmpty());
+    }
+
+    @Test
+    @DisplayName("모든 콘서트 찾기 - 콘서트가 없는 경우")
+    void findAllConcerts_Empty() {
+        // given
+        given(concertRepository.findAll()).willReturn(List.of());
+
+        // when
+        List<Concert> foundConcerts = concertService.findAllConcerts();
+
+        // then
+        assertNotNull(foundConcerts);
+        assertTrue(foundConcerts.isEmpty());
+    }
+
+    @Test
+    @DisplayName("콘서트 티켓 가용성 체크 - 가능한 경우")
+    void checkAvailability_Available() {
+        // given
+        Long concertId = 1L;
+        Long quantity = 50L;
+
+        Concert concert = Concert.builder()
+                .concertId(concertId)
+                .userEmail("test@test.com")
+                .title("테스트 콘서트")
+                .description("테스트 설명")
+                .dateTime(LocalDateTime.now().plusDays(7))
+                .capacity(100L)
+                .build();
+
+        given(concertRepository.findById(concertId)).willReturn(Optional.of(concert));
+
+        // when
+        boolean isAvailable = concertService.checkAvailability(concertId, quantity);
+
+        // then
+        assertTrue(isAvailable);
+    }
+
+    @Test
+    @DisplayName("콘서트 티켓 가용성 체크 - 수량 초과로 불가능한 경우")
+    void checkAvailability_Unavailable() {
+        // given
+        Long concertId = 1L;
+        Long quantity = 150L;
+
+        Concert concert = Concert.builder()
+                .concertId(concertId)
+                .userEmail("test@test.com")
+                .title("테스트 콘서트")
+                .description("테스트 설명")
+                .dateTime(LocalDateTime.now().plusDays(7))
+                .capacity(100L)
+                .build();
+
+        given(concertRepository.findById(concertId)).willReturn(Optional.of(concert));
+
+        // when
+        boolean isAvailable = concertService.checkAvailability(concertId, quantity);
+
+        // then
+        assertFalse(isAvailable);
+    }
+
+    @Test
+    @DisplayName("콘서트 티켓 가용성 체크 - 유효하지 않은 수량")
+    void checkAvailability_InvalidQuantity() {
+        // given
+        Long concertId = 1L;
+        Long invalidQuantity = -1L;
+
+        // when & then
+        assertThrows(IllegalArgumentException.class, () ->
+                concertService.checkAvailability(concertId, invalidQuantity)
+        );
+    }
+
 }

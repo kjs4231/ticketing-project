@@ -31,7 +31,7 @@ class ConcertTest {
 
         // then
         assertNotNull(concert);
-        assertEquals(id, concert.getId());
+        assertEquals(id, concert.getConcertId());
         assertEquals(title, concert.getTitle());
         assertEquals(description, concert.getDescription());
         assertEquals(dateTime, concert.getDateTime());

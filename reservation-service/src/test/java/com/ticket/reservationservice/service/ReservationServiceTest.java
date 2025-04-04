@@ -1,9 +1,10 @@
 package com.ticket.reservationservice.service;
 
+import com.ticket.reservationservice.client.ConcertServiceClient;
 import com.ticket.reservationservice.domain.Reservation;
-import com.ticket.reservationservice.domain.ReservationRepository;
 import com.ticket.reservationservice.domain.ReservationStatus;
 import com.ticket.reservationservice.dto.ReservationResponse;
+import com.ticket.reservationservice.repository.ReservationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,9 +21,11 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class ReservationServiceTest {
@@ -34,7 +37,7 @@ public class ReservationServiceTest {
     private ConcertServiceClient concertServiceClient;
 
     @InjectMocks
-    private ReservationServiceImpl reservationService;
+    private ReservationService reservationService;
 
     private Reservation sampleReservation;
 
