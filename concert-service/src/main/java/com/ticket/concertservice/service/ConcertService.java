@@ -32,9 +32,9 @@ public class ConcertService {
         return ConcertResponse.from(concert);
     }
 
-    public Concert findConcertById(Long userId) {
-        return concertRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("Concert not found with userId: " + userId));
+    public Concert findConcertById(Long id) {
+        return concertRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Concert not found with id: " + id));
     }
 
     public List<Concert> findAllConcerts() {
@@ -62,14 +62,5 @@ public class ConcertService {
         }
 
         concertRepository.delete(concert);
-    }
-
-    public boolean checkAvailability(Long concertId, Long quantity) {
-        if (quantity <= 0) {
-            throw new IllegalArgumentException("유효하지 않은 요청 수량입니다");
-        }
-
-        Concert concert = findConcertById(concertId);
-        return concert.getCapacity() >= quantity;
     }
 }
